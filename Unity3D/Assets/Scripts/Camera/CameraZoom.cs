@@ -1,34 +1,31 @@
 using UnityEngine;
-using Cinemachine;
+using Unity.Cinemachine;
 
 public class CameraZoom : MonoBehaviour
 {
-    [SerializeField] private CinemachineVirtualCamera virtualCam;
+    [SerializeField] private CinemachineCamera virtualCam;
     [SerializeField] private float zoomSpeed = 5f;
     [SerializeField] private float minZoom = 4f;
     [SerializeField] private float maxZoom = 15f;
-
-    private Cinemachine3rdPersonFollow thirdPersonFollow;
+    private CinemachinePositionComposer composer;
 
     private void Start()
     {
         if (virtualCam != null)
         {
-            thirdPersonFollow = virtualCam.GetCinemachineComponent<Cinemachine3rdPersonFollow>();
+            composer = virtualCam.GetComponent<CinemachinePositionComposer>();
         }
     }
 
     private void Update()
     {
-        if (thirdPersonFollow == null) return;
+        if (composer == null) return;
 
-        float scrollInput = Input.mouseScrollDelta.y;
-
-        if (Mathf.Abs(scrollInput) > 0.01f)
+        float scroll = Input.mouseScrollDelta.y;
+        if (Mathf.Abs(scroll) > 0.01f)
         {
-            float currentDistance = thirdPersonFollow.CameraDistance;
-            float newDistance = Mathf.Clamp(currentDistance - scrollInput * zoomSpeed, minZoom, maxZoom);
-            thirdPersonFollow.CameraDistance = newDistance;
+            float newDistance = Mathf.Clamp(composer.CameraDistance - scroll * zoomSpeed * Time.deltaTime, minZoom, maxZoom);
+            composer.CameraDistance = newDistance;
         }
     }
 }
