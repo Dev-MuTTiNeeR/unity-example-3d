@@ -5,7 +5,8 @@ using UnityEngine.InputSystem;
 public class PlayerMovement : MonoBehaviour
 {
     public float moveSpeed = 5f;
-
+    public float gravity = -9.81f;
+    private float verticalVelocity = 0f;
     private CharacterController controller;
     private Vector2 inputVector;
     private Vector3 moveDirection;
@@ -22,13 +23,13 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        // Calculate orientation relative to camera
+        // Camera angle
         Transform cam = Camera.main.transform;
         Vector3 forward = cam.forward;
         Vector3 right = cam.right;
 
-        forward.y = 0; // Ignore vertical component
-        right.y = 0; // Ignore vertical component
+        forward.y = 0f;
+        right.y = 0f;
         forward.Normalize();
         right.Normalize();
 
@@ -40,6 +41,17 @@ public class PlayerMovement : MonoBehaviour
             transform.rotation = Quaternion.Slerp(transform.rotation, toRotation, Time.deltaTime * 10f);
         }
 
-        controller.Move(moveDirection * moveSpeed * Time.deltaTime);
+        // Gravity
+        if (controller.isGrounded)
+        {
+            verticalVelocity = -1f; // Stick on ground
+        }
+        else
+        {
+            verticalVelocity += gravity * Time.deltaTime;
+        }
+
+        Vector3 finalMove = moveDirection * moveSpeed + Vector3.up * verticalVelocity;
+        controller.Move(finalMove * Time.deltaTime);
     }
 }
